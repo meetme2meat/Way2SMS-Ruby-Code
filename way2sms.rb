@@ -5,110 +5,71 @@ require "uri"
 require "ruby-debug"
 require 'cgi'
 
-message = "Message from Ruby" ## Message to be Sent
-number = '' # Receiver mobile number
-cookies_jar = Array.new
-referer_jar = Array.new
-url = URI.parse('http://site5.way2sms.com')
-regex = /http:\/\/site5.way2sms.com\/(.+)/
-def set_header(cookies_jar,referer_jar)
-  headers = {}
-  cookies_jar.compact!
-  unless cookies_jar.last.nil? 
-    headers = {
-    "Cookie" => cookies_jar.last,
-    "Referer" => referer_jar.last,
-    "Content-Type" => "application/x-www-form-urlencoded",
- "User-Agent" => "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.1.3) Gecko/20091020 Ubuntu/9.10 (karmic) Firefox/3.5.3 GTB7.0"
-}
-  else
-   headers = {
-    "Referer" => referer_jar.last,
-    "Content-Type" => "application/x-www-form-urlencoded",
- "User-Agent" => "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.1.3) Gecko/20091020 Ubuntu/9.10 (karmic) Firefox/3.5.3 GTB7.0"
-      }
- end     
- return headers
-end
-
-res = Net::HTTP.start(url.host,url.port) do |http|
-  http.get('/content/index.html')
-end
-
-cookies_jar << res['set-cookie']
-referer_jar << "http://site5.way2sms.com/content/index.html"
-
-
-
-headers =  set_header(cookies_jar,referer_jar)
-
+URL = 'http://site5.way2sms.com'
 username = '' ## way2sms login
 password = '' ## way2sms password
+message = "Hello I'm Cheating Way2SMS :)" ## Message to be Sent
+number = ''   # Receiver mobile number
+
+## With the above change you need to provide your Action on line number
+uri = URI.parse URL
+URL_REGEX = /http:\/\/site5.way2sms.com\/(.+)/
+
+def set_header(cookie=nil,referer=nil)
+  {"Cookie" => cookie , "Referer" => referer ,"Content-Type" => "application/x-www-form-urlencoded","User-Agent" => "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.1.3) Gecko/20091020 Ubuntu/9.10 (karmic) Firefox/3.5.3 GTB7.0" }
+end 
+
+http = Net::HTTP.new(uri.host,uri.port)
+ 
+if uri.scheme == "https"
+   http.use_ssl = true
+   http.ca_path = "/etc/ssl/certs"
+   http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+end   
+
+
+
+
+def fetch(http,path,header,data=nil,method=:get,limit=10) 
+ raise ArgumentError, 'HTTP redirect too deep' if limit == 0
+  cookie ||= header['Cookie']
+  referer ||= header['Referer']
+  if method == :get
+    response = http.get(path,header.delete_if {|i,j| j.nil? })
+  else   
+    response = http.post(path,data,header.delete_if {|i,j| j.nil? })
+    cookie ||= response['set-cookie']
+  end 
+    
+  case response.code 
+    when   /2\d{2}/
+      return [cookie,referer,response,http]         
+    when  /3\d{2}/
+      cookie,referer,response,http = fetch(http,("/"+response['location'].match(URL_REGEX)[1]),set_header(cookie,(URL+path)),limit-1)
+      return [cookie,referer,response,http]
+   else
+     return "HTTP Error"
+   end  
+end
+
+
+cookie,referer = [nil,nil]
+
+cookie,referer,response,http = fetch(http,'/content/index.html',set_header(cookie,referer))
+
+
 
 data = 'username='+username+'&password='+password+'&Submit=Sign+in'
+cookie,referer,response,http = fetch(http,'/auth.cl',set_header(cookie,referer),data,:post)
 
 
-res = Net::HTTP.start(url.host,url.port) do |http| 
-  http.post('/auth.cl',data,headers)
-end
- cookies_jar << res['set-cookie']
- headers = set_header(cookies_jar,referer_jar)
- path = ''
- redirect_to = ''
- if !(res["location"].nil?) && (res.code.to_i > 299 &&  res.code.to_i < 400)
-   path = res['location'].match(regex)[1] 
-   redirect_to =  res['location']
- end
- 
-if !(res["location"].nil?) && (res.code.to_i > 299 && res.code.to_i < 400)
-   res = Net::HTTP.start(url.host,url.port) do |http|
-   http.get(path,headers)
-   end
-end      
-     
-cookies_jar << res['set-cookie'] 
-   if redirect_to.empty?
-      referer_jar << "http://site5.way2sms.com/content/index.html"
-   else
-      referer_jar << redirect_to 
-   end
-redirect_to = ''
-path = ''      
-headers =  set_header(cookies_jar,referer_jar)
-
-
-#res = Net::HTTP.start(url.host,url.port) do |http|
-#  http.get('/jsp/Main.jsp?id=87C4C2740DE67329769EC424E6C6B943.b501',headers)
-#end  
-
-
-cookies_jar << res['set-cookie']
-referer_jar << "http://site5.way2sms.com/jsp/InstantSMS.jsp?val=0"
-headers = set_header(cookies_jar,referer_jar)
 message = CGI.escape(message)
+
+## The Action obtained from the way2sms on page after successful login  the form of the quick message submission by inespecting it using firebuglite 
+## Action need to be replace with yours ----------------------- 
+#                                                             |  
 sms_data = 'custid=undefined&HiddenAction=instantsms&Action=hgfgh5656fgd&login=&pass=&MobNo='+number+'&textArea='+message
 
+cookie,referer,response,http = fetch(http,'/FirstServletsms?custid=',set_header(cookie,referer),sms_data,:post)
 
-res = Net::HTTP.start(url.host,url.port) do |http|
-  http.post('/FirstServletsms?custid=',sms_data,headers)
-end
-
- if !(res["location"].nil?) && (res.code.to_i > 299 &&  res.code.to_i < 400)
-   path = res['location'].match(regex)[1] 
-   redirect_to =  res['location']
- end
- 
-if !(res["location"].nil?) && (res.code.to_i > 299 && res.code.to_i < 400)
-   res = Net::HTTP.start(url.host,url.port) do |http|
-   http.get(path,headers)
-  end
-end   
-   
-#referer_jar << "http://site5.way2sms.com/jsp/Main.jsp?id=87C4C2740DE67329769EC424E6C6B943.b501"
-#cookies_jar << res['set-cookie']
-#headers  = set_header(cookies_jar,referer_jar)
-#res = Net::HTTP.start(url.host,url.port) do |http|
-#  http.get('/jsp/Main.jsp?id=87C4C2740DE67329769EC424E6C6B943.b501',headers)
-#end  
-#puts res.body
 puts "SMS Sent !!!"

@@ -1,1 +1,12 @@
 The Following is the Way2SMS command line automated code written in Ruby
+
+To Use
+  ## Provide your
+  login credential (like 
+                  username ,password )
+  message => Message that need to be sent
+  
+  number => "Receiver of the message mobile Number"
+  
+  Action => "A Unique Identifier Given by Way2SMS can be obtained by inspecting the form of Quick SMS using firebug lite or any other HTML inspecting tool(Note the Action wont be directly by ispecting page source as it is generated using Javascript on load)"                
+                 
