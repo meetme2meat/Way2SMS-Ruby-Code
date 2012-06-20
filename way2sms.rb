@@ -5,7 +5,7 @@ require "uri"
 require "ruby-debug"
 require 'cgi'
 
-URL = 'http://site5.way2sms.com'
+URL = 'http://site1.way2sms.com'
 username = '' ## way2sms login
 password = '' ## way2sms password
 message = "Hello I'm Cheating Way2SMS :)" ## Message to be Sent
@@ -13,7 +13,7 @@ number = ''   # Receiver mobile number
 
 ## With the above change you need to provide your Action on line number
 uri = URI.parse URL
-URL_REGEX = /http:\/\/site5.way2sms.com\/(.+)/
+URL_REGEX = /http:\/\/site1.way2sms.com\/(.+)/
 
 def set_header(cookie=nil,referer=nil)
   {"Cookie" => cookie , "Referer" => referer ,"Content-Type" => "application/x-www-form-urlencoded","User-Agent" => "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.1.3) Gecko/20091020 Ubuntu/9.10 (karmic) Firefox/3.5.3 GTB7.0" }
@@ -60,16 +60,16 @@ cookie,referer,response,http = fetch(http,'/content/index.html',set_header(cooki
 
 
 data = 'username='+username+'&password='+password+'&Submit=Sign+in'
-cookie,referer,response,http = fetch(http,'/auth.cl',set_header(cookie,referer),data,:post)
+cookie,referer,response,http = fetch(http,'/Login1.action',set_header(cookie,referer),data,:post)
 
 
 message = CGI.escape(message)
 
 ## The Action obtained from the way2sms on page after successful login  the form of the quick message submission by inespecting it using firebuglite 
-## Action need to be replace with yours ----------------------- 
-#                                                             |  
-sms_data = 'custid=undefined&HiddenAction=instantsms&Action=hgfgh5656fgd&login=&pass=&MobNo='+number+'&textArea='+message
+## Action need to be replace with yours -------- 
+#                                              |  
+sms_data = 'HiddenAction=instantsms&Action=hgfgh5656fgd&MobNo='+number+'&textArea='+message
 
-cookie,referer,response,http = fetch(http,'/FirstServletsms?custid=',set_header(cookie,referer),sms_data,:post)
+cookie,referer,response,http = fetch(http,'/quicksms.action',set_header(cookie,referer),sms_data,:post)
 
 puts "SMS Sent !!!"
