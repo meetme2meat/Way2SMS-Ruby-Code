@@ -1,5 +1,6 @@
-## I'm not longer maintaing this repo anyone interested please ping me,also I'm 
-## not sure about the current status of the script
+== Note
+## I'm not longer maintaing this repo anyone interested please ping me,also I'm not sure about the 
+## current status of the script
    
 The Following is the Way2SMS command line automated code written in Ruby
 
@@ -11,5 +12,4 @@ To Use
   
   number => "Receiver of the message mobile Number"
   
-  Action => "A Unique Identifier Given by Way2SMS can be obtained by inspecting the form of Quick SMS using firebug lite or any other HTML inspecting tool(Note the Action wont be directly by ispecting page source as it is generated using Javascript on load)"                
-                 
+  Action => "A Unique Identifier Given by Way2SMS can be obtained by inspecting the form of Quick SMS using firebug lite or any other HTML inspecting tool(Note the Action wont be directly by ispecting page source as it is generated using Javascript on load)"
