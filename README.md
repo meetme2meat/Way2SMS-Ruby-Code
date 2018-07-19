@@ -1,10 +1,9 @@
-== Note
-## I'm not longer maintaing this repo anyone interested please ping me,also I'm not sure about the 
-## current status of the script
-   
-Way2SMS ruby
+=== Note
+## I'm not longer maintaing this repo anyone interested please ping me,also I'm not sure about the  current status of the script
 
-To Use
+# Way2SMS ruby
+
+# To Use
   ## Provide your
   login credential (like 
                   username ,password )
